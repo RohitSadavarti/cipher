@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipher Encryption Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🔐 Cipher Encryption Visualizer</div>
+            <div class="subtitle">Explore classical cryptography with interactive animations</div>
+            <div class="step-counter">Step: <span id="stepCount">0</span></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-section">
+                <div class="section-title">📝 Input Text & Key</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Plain Text:</label>
+                    <input type="text" class="text-input" id="plainText" placeholder="Enter text to encrypt..." maxlength="50">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Key/Shift:</label>
+                    <input type="text" class="key-input" id="cipherKey" placeholder="Enter key or shift value...">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-encrypt" onclick="startEncryption()">🔒 Encrypt</button>
+                    <button class="btn btn-decrypt" onclick="startDecryption()">🔓 Decrypt</button>
+                    <button class="btn btn-reset" onclick="resetVisualization()">🔄 Reset</button>
+                </div>
+            </div>
+
+            <div class="cipher-section">
+                <div class="section-title">⚙️ Cipher Selection</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Cipher Technique:</label>
+                    <select class="cipher-select" id="cipherSelect" onchange="updateCipherInfo()">
+                        <optgroup label="Substitution Ciphers">
+                            <option value="caesar">Caesar Cipher</option>
+                            <option value="atbash">Atbash Cipher</option>
+                            <option value="substitution">Simple Substitution</option>
+                            <option value="affine">Affine Cipher</option>
+                        </optgroup>
+                        <optgroup label="Transposition Ciphers">
+                            <option value="columnar">Columnar Transposition</option>
+                            <option value="rail_fence">Rail Fence Cipher</option>
+                            <option value="scytale">Scytale Cipher</option>
+                        </optgroup>
+                        <optgroup label="Polyalphabetic Ciphers">
+                            <option value="vigenere">Vigenère Cipher</option>
+                            <option value="playfair">Playfair Cipher</option>
+                            <option value="beaufort">Beaufort Cipher</option>
+                        </optgroup>
+                        <optgroup label="Historical Ciphers">
+                            <option value="enigma_basic">Basic Enigma</option>
+                            <option value="morse">Morse Code</option>
+                            <option value="polybius">Polybius Square</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="controls-bottom">
+                    <div class="speed-control">
+                        <label class="input-label">Animation Speed:</label>
+                        <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+                        <span id="speedValue">5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="visualization">
+                <div class="vis-title" id="visTitle">Select a cipher and enter text to begin</div>
+                <div class="animation-container" id="animationContainer">
+                    <div class="process-info" id="processInfo" style="display: none;">
+                        Ready to start encryption process...
+                    </div>
+                </div>
+            </div>
+
+            <div class="cipher-info" id="cipherInfo">
+                <div class="section-title">ℹ️ Cipher Information</div>
+                <div class="info-text">
+                    Select a cipher from the dropdown to see detailed information about how it works.
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="section-title">📤 Result</div>
+            <div class="result-text" id="resultText">Results will appear here...</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
