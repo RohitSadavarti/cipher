@@ -57,48 +57,50 @@
                             <option value="playfair">Playfair Cipher</option>
                             <option value="beaufort">Beaufort Cipher</option>
                         </optgroup>
-                        <optgroup label="Historical Ciphers">
-                            <option value="enigma_basic">Basic Enigma</option>
+                        <optgroup label="Modern Techniques">
+                            <option value="xor">XOR Cipher</option>
+                            <option value="base64">Base64 Encoding</option>
                             <option value="morse">Morse Code</option>
-                            <option value="polybius">Polybius Square</option>
                         </optgroup>
                     </select>
                 </div>
 
-                <div class="controls-bottom">
-                    <div class="speed-control">
-                        <label class="input-label">Animation Speed:</label>
-                        <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
-                        <span id="speedValue">5</span>
-                    </div>
+                <div class="speed-control">
+                    <label class="input-label">Animation Speed:</label>
+                    <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+                    <span id="speedValue">5x</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization">
+            <div class="vis-title" id="visTitle">Select a cipher and enter text to begin</div>
+            <div class="animation-container" id="animationContainer">
+                <div class="process-info">
+                    <strong>Instructions:</strong> Choose a cipher technique, enter your text and key, then click Encrypt or Decrypt to see the step-by-step animation of how the algorithm works.
                 </div>
             </div>
         </div>
 
         <div class="grid-container">
-            <div class="visualization">
-                <div class="vis-title" id="visTitle">Select a cipher and enter text to begin</div>
-                <div class="animation-container" id="animationContainer">
-                    <div class="process-info" id="processInfo" style="display: none;">
-                        Ready to start encryption process...
-                    </div>
+            <div class="result-section">
+                <div class="section-title">📊 Result</div>
+                <div class="result-text" id="resultText">Result will appear here...</div>
+                
+                <div class="controls-bottom">
+                    <button class="btn btn-reset" onclick="copyResult()">📋 Copy Result</button>
+                    <button class="btn btn-encrypt" onclick="reverseOperation()" id="reverseBtn" style="display: none;">↔️ Reverse</button>
                 </div>
             </div>
 
-            <div class="cipher-info" id="cipherInfo">
+            <div class="cipher-info">
                 <div class="section-title">ℹ️ Cipher Information</div>
-                <div class="info-text">
-                    Select a cipher from the dropdown to see detailed information about how it works.
+                <div id="cipherInfoContent">
+                    Select a cipher to see detailed information about how it works.
                 </div>
             </div>
-        </div>
-
-        <div class="result-section">
-            <div class="section-title">📤 Result</div>
-            <div class="result-text" id="resultText">Results will appear here...</div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
