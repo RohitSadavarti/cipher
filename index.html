@@ -13,28 +13,8 @@
             <div class="step-counter">Step: <span id="stepCount">0</span></div>
         </div>
 
-        <div class="controls">
-            <div class="input-section">
-                <div class="section-title">📝 Input Text & Key</div>
-                
-                <div class="input-group">
-                    <label class="input-label">Plain Text:</label>
-                    <input type="text" class="text-input" id="plainText" placeholder="Enter text to encrypt..." maxlength="50">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Key/Shift:</label>
-                    <input type="text" class="key-input" id="cipherKey" placeholder="Enter key or shift value...">
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-encrypt" onclick="startEncryption()">🔒 Encrypt</button>
-                    <button class="btn btn-decrypt" onclick="startDecryption()">🔓 Decrypt</button>
-                    <button class="btn btn-reset" onclick="resetVisualization()">🔄 Reset</button>
-                </div>
-            </div>
-
-            <div class="cipher-section">
+        
+    <div class="cipher-section">
                 <div class="section-title">⚙️ Cipher Selection</div>
                 
                 <div class="input-group">
@@ -63,6 +43,29 @@
                         </optgroup>
                     </select>
                 </div>
+    
+    <div class="controls">
+            <div class="input-section">
+                <div class="section-title">📝 Input Text & Key</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Plain Text:</label>
+                    <input type="text" class="text-input" id="plainText" placeholder="Enter text to encrypt..." maxlength="50">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Key/Shift:</label>
+                    <input type="text" class="key-input" id="cipherKey" placeholder="Enter key or shift value...">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-encrypt" onclick="startEncryption()">🔒 Encrypt</button>
+                    <button class="btn btn-decrypt" onclick="startDecryption()">🔓 Decrypt</button>
+                    <button class="btn btn-reset" onclick="resetVisualization()">🔄 Reset</button>
+                </div>
+            </div>
+
+            
 
                 <div class="speed-control">
                     <label class="input-label">Animation Speed:</label>
