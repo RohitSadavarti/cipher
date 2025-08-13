@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipher Encryption Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #555;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ff41;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .step-counter {
+            background: linear-gradient(45deg, #333, #444);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid #555;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-section, .cipher-section {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #444;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ff41;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .text-input, .key-input, .cipher-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus, .key-input:focus, .cipher-select:focus {
+            border-color: #00ff41;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+
+        .cipher-select {
+            cursor: pointer;
+        }
+
+        .cipher-select option {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-encrypt {
+            background: linear-gradient(45deg, #00ff41, #00cc33);
+            color: #000;
+        }
+
+        .btn-encrypt:hover {
+            background: linear-gradient(45deg, #00cc33, #009926);
+            transform: translateY(-2px);
+        }
+
+        .btn-decrypt {
+            background: linear-gradient(45deg, #ff4444, #cc1111);
+            color: white;
+        }
+
+        .btn-decrypt:hover {
+            background: linear-gradient(45deg, #cc1111, #aa0000);
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #666, #444);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(45deg, #555, #333);
+            transform: translateY(-2px);
+        }
+
+        .visualization {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #333;
+            min-height: 300px;
+        }
+
+        .vis-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff41;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .animation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .character-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .char-box {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #333, #444);
+            border: 2px solid #555;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #e0e0e0;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .char-box.processing {
+            background: linear-gradient(45deg, #00ff41, #00cc33);
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            animation: pulse 0.8s infinite;
+        }
+
+        .char-box.encrypted {
+            background: linear-gradient(45deg, #ff4444, #cc1111);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+
+        .char-box.decrypted {
+            background: linear-gradient(45deg, #4444ff, #1111cc);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(68, 68, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #00ff41;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .process-info {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #00ff41;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .result-section {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #444;
+        }
+
+        .result-text {
+            background: #1a1a1a;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+            min-height: 60px;
+            word-break: break-all;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .cipher-info {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #444;
+        }
+
+        .info-text {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .info-highlight {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .key-display {
+            background: #1a1a1a;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            color: #ff4444;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .matrix-display {
+            display: grid;
+            gap: 5px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .matrix-cell {
+            width: 35px;
+            height: 35px;
+            background: #333;
+            border: 1px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #ccc;
+            border-radius: 4px;
+        }
+
+        .matrix-cell.highlight {
+            background: #00ff41;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .controls-bottom {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-slider {
+            width: 150px;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff41;
+            cursor: pointer;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .char-box {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🔐 Cipher Encryption Visualizer</div>
+            <div class="subtitle">Explore classical cryptography with interactive animations</div>
+            <div class="step-counter">Step: <span id="stepCount">0</span></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-section">
+                <div class="section-title">📝 Input Text & Key</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Plain Text:</label>
+                    <input type="text" class="text-input" id="plainText" placeholder="Enter text to encrypt..." maxlength="50">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Key/Shift:</label>
+                    <input type="text" class="key-input" id="cipherKey" placeholder="Enter key or shift value...">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-encrypt" onclick="startEncryption()">🔒 Encrypt</button>
+                    <button class="btn btn-decrypt" onclick="startDecryption()">🔓 Decrypt</button>
+                    <button class="btn btn-reset" onclick="resetVisualization()">🔄 Reset</button>
+                </div>
+            </div>
+
+            <div class="cipher-section">
+                <div class="section-title">⚙️ Cipher Selection</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Cipher Technique:</label>
+                    <select class="cipher-select" id="cipherSelect" onchange="updateCipherInfo()">
+                        <optgroup label="Substitution Ciphers">
+                            <option value="caesar">Caesar Cipher</option>
+                            <option value="atbash">Atbash Cipher</option>
+                            <option value="substitution">Simple Substitution</option>
+                            <option value="affine">Affine Cipher</option>
+                        </optgroup>
+                        <optgroup label="Transposition Ciphers">
+                            <option value="columnar">Columnar Transposition</option>
+                            <option value="rail_fence">Rail Fence Cipher</option>
+                            <option value="scytale">Scytale Cipher</option>
+                        </optgroup>
+                        <optgroup label="Polyalphabetic Ciphers">
+                            <option value="vigenere">Vigenère Cipher</option>
+                            <option value="playfair">Playfair Cipher</option>
+                            <option value="beaufort">Beaufort Cipher</option>
+                        </optgroup>
+                        <optgroup label="Modern Techniques">
+                            <option value="xor">XOR Cipher</option>
+                            <option value="base64">Base64 Encoding</option>
+                            <option value="morse">Morse Code</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="speed-control">
+                    <label class="input-label">Animation Speed:</label>
+                    <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+                    <span id="speedValue">5x</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization">
+            <div class="vis-title" id="visTitle">Select a cipher and enter text to begin</div>
+            <div class="animation-container" id="animationContainer">
+                <div class="process-info">
+                    <strong>Instructions:</strong> Choose a cipher technique, enter your text and key, then click Encrypt or Decrypt to see the step-by-step animation of how the algorithm works.
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="result-section">
+                <div class="section-title">📊 Result</div>
+                <div class="result-text" id="resultText">Result will appear here...</div>
+                
+                <div class="controls-bottom">
+                    <button class="btn btn-reset" onclick="copyResult()">📋 Copy Result</button>
+                    <button class="btn btn-encrypt" onclick="reverseOperation()" id="reverseBtn" style="display: none;">↔️ Reverse</button>
+                </div>
+            </div>
+
+            <div class="cipher-info">
+                <div class="section-title">ℹ️ Cipher Information</div>
+                <div id="cipherInfoContent">
+                    Select a cipher to see detailed information about how it works.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentCipher = 'caesar';
+        let animationSpeed = 500;
+        let isAnimating = false;
+        let currentStep = 0;
+        let lastOperation = null;
+        let lastResult = '';
+
+        // Cipher information database
+        const cipherInfo = {
+            caesar: {
+                name: "Caesar Cipher",
+                description: "A substitution cipher where each letter is shifted by a fixed number of positions in the alphabet.",
+                keyFormat: "Shift value (1-25)",
+                example: "With shift 3: A→D, B→E, C→F",
+                strength: "Very weak - easily broken by frequency analysis",
+                invented: "Named after Julius Caesar (1st century BC)"
+            },
+            atbash: {
+                name: "Atbash Cipher",
+                description: "A substitution cipher where A↔Z, B↔Y, C↔X, etc. The alphabet is reversed.",
+                keyFormat: "No key required",
+                example: "HELLO → SVOOL",
+                strength: "Weak - monoalphabetic substitution",
+                invented: "Ancient Hebrew cipher (600-500 BC)"
+            },
+            substitution: {
+                name: "Simple Substitution",
+                description: "Each letter is replaced by another letter according to a fixed system.",
+                keyFormat: "26-letter substitution key",
+                example: "Key: ZYXWVUTSRQPONMLKJIHGFEDCBA",
+                strength: "Moderate - vulnerable to frequency analysis",
+                invented: "Ancient times, various civilizations"
+            },
+            affine: {
+                name: "Affine Cipher",
+                description: "Each letter is mapped to its numeric value, transformed by a mathematical function.",
+                keyFormat: "Two integers (a,b) where gcd(a,26)=1",
+                example: "Formula: (ax + b) mod 26",
+                strength: "Weak - limited keyspace",
+                invented: "Mathematical cipher (1929)"
+            },
+            vigenere: {
+                name: "Vigenère Cipher",
+                description: "Uses a keyword to create multiple Caesar ciphers, cycling through the key.",
+                keyFormat: "Alphabetic keyword",
+                example: "Key: KEY, Text: HELLO → RIJVS",
+                strength: "Historically strong - 'Le Chiffre Indéchiffrable'",
+                invented: "Blaise de Vigenère (1586)"
+            },
+            playfair: {
+                name: "Playfair Cipher",
+                description: "Encrypts pairs of letters using a 5×5 key square.",
+                keyFormat: "Keyword for 5×5 grid",
+                example: "Processes digrams instead of single letters",
+                strength: "Strong for its time - more secure than monoalphabetic",
+                invented: "Lord Playfair (1854)"
+            },
+            columnar: {
+                name: "Columnar Transposition",
+                description: "Text is written in rows and read in columns according to a key order.",
+                keyFormat: "Keyword determining column order",
+                example: "Rearranges letter positions, not substitution",
+                strength: "Moderate - depends on key length",
+                invented: "Ancient military cipher"
+            },
+            rail_fence: {
+                name: "Rail Fence Cipher",
+                description: "Text is written in a zigzag pattern across multiple 'rails' then read off in rows.",
+                keyFormat: "Number of rails (2-10)",
+                example: "3 rails: H.L.O / .E.L. / ..L..",
+                strength: "Weak - simple transposition",
+                invented: "Ancient Greece"
+            },
+            xor: {
+                name: "XOR Cipher",
+                description: "Each character is XORed with a repeating key using bitwise exclusive OR.",
+                keyFormat: "Text or numeric key",
+                example: "Reversible: A XOR Key XOR Key = A",
+                strength: "Strong with proper key management",
+                invented: "Modern computer era"
+            },
+            base64: {
+                name: "Base64 Encoding",
+                description: "Encodes binary data using 64 ASCII characters (A-Z, a-z, 0-9, +, /).",
+                keyFormat: "No key required",
+                example: "Hello → SGVsbG8=",
+                strength: "Not cryptographic - encoding only",
+                invented: "Computer networking (1987)"
+            },
+            morse: {
+                name: "Morse Code",
+                description: "Represents letters as combinations of dots and dashes.",
+                keyFormat: "No key required",
+                example: "SOS → ... --- ...",
+                strength: "Not cryptographic - communication protocol",
+                invented: "Samuel Morse (1838)"
+            },
+            beaufort: {
+                name: "Beaufort Cipher",
+                description: "Similar to Vigenère but uses subtraction instead of addition.",
+                keyFormat: "Alphabetic keyword",
+                example: "Reciprocal cipher - encryption = decryption",
+                strength: "Similar to Vigenère",
+                invented: "Sir Francis Beaufort (1857)"
+            },
+            scytale: {
+                name: "Scytale Cipher",
+                description: "Text wrapped around a rod of specific diameter, read vertically.",
+                keyFormat: "Rod diameter/circumference",
+                example: "Ancient physical transposition device",
+                strength: "Weak - simple columnar transposition",
+                invented: "Ancient Sparta (7th century BC)"
+            }
+        };
+
+        // Update cipher information display
+        function updateCipherInfo() {
+            const select = document.getElementById('cipherSelect');
+            currentCipher = select.value;
+            const info = cipherInfo[currentCipher];
+            
+            const content = document.getElementById('cipherInfoContent');
+            content.innerHTML = `
+                <div class="info-text"><span class="info-highlight">Name:</span> ${info.name}</div>
+                <div class="info-text"><span class="info-highlight">Description:</span> ${info.description}</div>
+                <div class="info-text"><span class="info-highlight">Key Format:</span> ${info.keyFormat}</div>
+                <div class="info-text"><span class="info-highlight">Example:</span> ${info.example}</div>
+                <div class="info-text"><span class="info-highlight">Strength:</span> ${info.strength}</div>
+                <div class="info-text"><span class="info-highlight">History:</span> ${info.invented}</div>
+            `;
+
+            // Update key placeholder
+            const keyInput = document.getElementById('cipherKey');
+            switch(currentCipher) {
+                case 'caesar':
+                case 'rail_fence':
+                case 'scytale':
+                    keyInput.placeholder = "Enter number (e.g., 3)";
+                    break;
+                case 'vigenere':
+                case 'beaufort':
+                case 'playfair':
+                case 'columnar':
+                    keyInput.placeholder = "Enter keyword (e.g., KEY)";
+                    break;
+                case 'substitution':
+                    keyInput.placeholder = "26-letter key (e.g., ZYXWVU...)";
+                    break;
+                case 'affine':
+                    keyInput.placeholder = "Two numbers (e.g., 5,8)";
+                    break;
+                case 'xor':
+                    keyInput.placeholder = "Enter key text";
+                    break;
+                case 'atbash':
+                case 'base64':
+                case 'morse':
+                    keyInput.placeholder = "No key required";
+                    keyInput.value = "";
+                    break;
+            }
+        }
+
+        // Animation speed control
+        document.getElementById('speedSlider').addEventListener('input', function() {
+            const speed = this.value;
+            animationSpeed = 1000 - (speed * 90); // 910ms to 100ms
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        // Start encryption animation
+        function startEncryption() {
+            const text = document.getElementById('plainText').value.toUpperCase().trim();
+            const key = document.getElementById('cipherKey').value.trim();
+            
+            if (!text) {
+                showError("Please enter text to encrypt");
+                return;
+            }
+
+            if (requiresKey(currentCipher) && !key) {
+                showError("This cipher requires a key");
+                return;
+            }
+
+            lastOperation = 'encrypt';
+            resetAnimation();
+            
+            document.getElementById('visTitle').textContent = `Encrypting with ${cipherInfo[currentCipher].name}`;
+            
+            setTimeout(() => {
+                performCipher(text, key, true);
+            }, 300);
+        }
+
+        // Start decryption animation
+        function startDecryption() {
+            const text = document.getElementById('plainText').value.trim();
+            const key = document.getElementById('cipherKey').value.trim();
+            
+            if (!text) {
+                showError("Please enter text to decrypt");
+                return;
+            }
+
+            if (requiresKey(currentCipher) && !key) {
+                showError("This cipher requires a key");
+                return;
+            }
+
+            lastOperation = 'decrypt';
+            resetAnimation();
+            
+            document.getElementById('visTitle').textContent = `Decrypting with ${cipherInfo[currentCipher].name}`;
+            
+            setTimeout(() => {
+                performCipher(text, key, false);
+            }, 300);
+        }
+
+        // Check if cipher requires a key
+        function requiresKey(cipher) {
+            return !['atbash', 'base64', 'morse'].includes(cipher);
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info" style="border-left-color: #ff4444;">
+                    <strong style="color: #ff4444;">Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        // Reset animation
+        function resetAnimation() {
+            isAnimating = false;
+            currentStep = 0;
+            document.getElementById('stepCount').textContent = '0';
+            document.getElementById('animationContainer').innerHTML = '';
+            document.getElementById('resultText').textContent = 'Processing...';
+        }
+
+        // Reset visualization
+        function resetVisualization() {
+            document.getElementById('plainText').value = '';
+            document.getElementById('cipherKey').value = '';
+            document.getElementById('resultText').textContent = 'Result will appear here...';
+            document.getElementById('visTitle').textContent = 'Select a cipher and enter text to begin';
+            document.getElementById('stepCount').textContent = '0';
+            document.getElementById('reverseBtn').style.display = 'none';
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Instructions:</strong> Choose a cipher technique, enter your text and key, then click Encrypt or Decrypt to see the step-by-step animation of how the algorithm works.
+                </div>
+            `;
+            
+            currentStep = 0;
+            lastOperation = null;
+            lastResult = '';
+        }
+
+        // Main cipher processing function
+        async function performCipher(text, key, isEncrypt) {
+            isAnimating = true;
+            currentStep = 0;
+            
+            let result = '';
+            
+            try {
+                switch(currentCipher) {
+                    case 'caesar':
+                        result = await animateCaesar(text, key, isEncrypt);
+                        break;
+                    case 'atbash':
+                        result = await animateAtbash(text);
+                        break;
+                    case 'vigenere':
+                        result = await animateVigenere(text, key, isEncrypt);
+                        break;
+                    case 'rail_fence':
+                        result = await animateRailFence(text, parseInt(key) || 3, isEncrypt);
+                        break;
+                    case 'xor':
+                        result = await animateXOR(text, key);
+                        break;
+                    case 'base64':
+                        result = await animateBase64(text, isEncrypt);
+                        break;
+                    case 'morse':
+                        result = await animateMorse(text, isEncrypt);
+                        break;
+                    case 'columnar':
+                        result = await animateColumnar(text, key, isEncrypt);
+                        break;
+                    case 'playfair':
+                        result = await animatePlayfair(text, key, isEncrypt);
+                        break;
+                    case 'substitution':
+                        result = await animateSubstitution(text, key, isEncrypt);
+                        break;
+                    case 'affine':
+                        result = await animateAffine(text, key, isEncrypt);
+                        break;
+                    case 'beaufort':
+                        result = await animateBeaufort(text, key, isEncrypt);
+                        break;
+                    case 'scytale':
+                        result = await animateScytale(text, parseInt(key) || 4, isEncrypt);
+                        break;
+                    default:
+                        throw new Error('Cipher not implemented yet');
+                }
+                
+                document.getElementById('resultText').textContent = result;
+                lastResult = result;
+                document.getElementById('reverseBtn').style.display = 'inline-block';
+                
+            } catch (error) {
+                showError(error.message);
+            }
+            
+            isAnimating = false;
+        }
+
+        // Caesar Cipher Animation
+        async function animateCaesar(text, key, isEncrypt) {
+            const shift = parseInt(key) || 3;
+            const actualShift = isEncrypt ? shift : 26 - shift;
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Caesar Cipher:</strong> Shifting each letter by ${shift} position${shift !== 1 ? 's' : ''} ${isEncrypt ? 'forward' : 'backward'} in the alphabet.
+                </div>
+                <div class="key-display">Shift Value: ${shift}</div>
+            `;
+            
+            // Create character boxes
+            const inputRow = document.createElement('div');
+            inputRow.className = 'character-row';
+            
+            const outputRow = document.createElement('div');
+            outputRow.className = 'character-row';
+            
+            const chars = text.split('');
+            const inputBoxes = [];
+            const outputBoxes = [];
+            
+            // Create input boxes
+            chars.forEach((char, i) => {
+                const box = document.createElement('div');
+                box.className = 'char-box';
+                box.textContent = char;
+                inputBoxes.push(box);
+                inputRow.appendChild(box);
+                
+                const outputBox = document.createElement('div');
+                outputBox.className = 'char-box';
+                outputBox.textContent = '?';
+                outputBoxes.push(outputBox);
+                outputRow.appendChild(outputBox);
+            });
+            
+            container.appendChild(inputRow);
+            
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.textContent = '↓';
+            container.appendChild(arrow);
+            
+            container.appendChild(outputRow);
+            
+            let result = '';
+            
+            // Animate each character
+            for (let i = 0; i < chars.length; i++) {
+                await sleep(animationSpeed);
+                
+                inputBoxes[i].classList.add('processing');
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                
+                const char = chars[i];
+                let newChar = char;
+                
+                if (char.match(/[A-Z]/)) {
+                    const charCode = char.charCodeAt(0) - 65;
+                    const newCharCode = (charCode + actualShift) % 26;
+                    newChar = String.fromCharCode(newCharCode + 65);
+                } else if (char.match(/[a-z]/)) {
+                    const charCode = char.charCodeAt(0) - 97;
+                    const newCharCode = (charCode + actualShift) % 26;
+                    newChar = String.fromCharCode(newCharCode + 97);
+                }
+                
+                outputBoxes[i].textContent = newChar;
+                outputBoxes[i].classList.add(isEncrypt ? 'encrypted' : 'decrypted');
+                result += newChar;
+                
+                inputBoxes[i].classList.remove('processing');
+            }
+            
+            return result;
+        }
+
+        // Atbash Cipher Animation
+        async function animateAtbash(text) {
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Atbash Cipher:</strong> Each letter is mapped to its opposite in the alphabet (A↔Z, B↔Y, C↔X, etc.)
+                </div>
+                <div class="key-display">Alphabet: ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>Atbash:   ZYXWVUTSRQPONMLKJIHGFEDCBA</div>
+            `;
+            
+            return await animateCharacterSubstitution(text, (char) => {
+                if (char.match(/[A-Z]/)) {
+                    return String.fromCharCode(90 - (char.charCodeAt(0) - 65));
+                } else if (char.match(/[a-z]/)) {
+                    return String.fromCharCode(122 - (char.charCodeAt(0) - 97));
+                }
+                return char;
+            }, container);
+        }
+
+        // Vigenère Cipher Animation
+        async function animateVigenere(text, key, isEncrypt) {
+            if (!key) throw new Error("Vigenère cipher requires a keyword");
+            
+            const container = document.getElementById('animationContainer');
+            const upperKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+            
+            if (!upperKey) throw new Error("Key must contain at least one letter");
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Vigenère Cipher:</strong> Using keyword "${upperKey}" to create multiple Caesar shifts.
+                </div>
+                <div class="key-display">Keyword: ${upperKey} (repeating)</div>
+            `;
+            
+            // Create rows for text, key, and result
+            const textRow = document.createElement('div');
+            textRow.className = 'character-row';
+            
+            const keyRow = document.createElement('div');
+            keyRow.className = 'character-row';
+            
+            const resultRow = document.createElement('div');
+            resultRow.className = 'character-row';
+            
+            const chars = text.split('');
+            const textBoxes = [];
+            const keyBoxes = [];
+            const resultBoxes = [];
+            
+            let keyIndex = 0;
+            
+            chars.forEach((char, i) => {
+                // Text box
+                const textBox = document.createElement('div');
+                textBox.className = 'char-box';
+                textBox.textContent = char;
+                textBoxes.push(textBox);
+                textRow.appendChild(textBox);
+                
+                // Key box
+                const keyBox = document.createElement('div');
+                keyBox.className = 'char-box';
+                if (char.match(/[A-Za-z]/)) {
+                    keyBox.textContent = upperKey[keyIndex % upperKey.length];
+                    keyIndex++;
+                } else {
+                    keyBox.textContent = '-';
+                }
+                keyBoxes.push(keyBox);
+                keyRow.appendChild(keyBox);
+                
+                // Result box
+                const resultBox = document.createElement('div');
+                resultBox.className = 'char-box';
+                resultBox.textContent = '?';
+                resultBoxes.push(resultBox);
+                resultRow.appendChild(resultBox);
+            });
+            
+            container.appendChild(textRow);
+            container.appendChild(keyRow);
+            
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.textContent = '↓';
+            container.appendChild(arrow);
+            
+            container.appendChild(resultRow);
+            
+            let result = '';
+            keyIndex = 0;
+            
+            for (let i = 0; i < chars.length; i++) {
+                await sleep(animationSpeed);
+                
+                textBoxes[i].classList.add('processing');
+                keyBoxes[i].classList.add('processing');
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                
+                const char = chars[i];
+                let newChar = char;
+                
+                if (char.match(/[A-Za-z]/)) {
+                    const keyChar = upperKey[keyIndex % upperKey.length];
+                    const keyShift = keyChar.charCodeAt(0) - 65;
+                    
+                    if (char.match(/[A-Z]/)) {
+                        const charCode = char.charCodeAt(0) - 65;
+                        const newCharCode = isEncrypt ? 
+                            (charCode + keyShift) % 26 : 
+                            (charCode - keyShift + 26) % 26;
+                        newChar = String.fromCharCode(newCharCode + 65);
+                    } else {
+                        const charCode = char.charCodeAt(0) - 97;
+                        const newCharCode = isEncrypt ? 
+                            (charCode + keyShift) % 26 : 
+                            (charCode - keyShift + 26) % 26;
+                        newChar = String.fromCharCode(newCharCode + 97);
+                    }
+                    keyIndex++;
+                }
+                
+                resultBoxes[i].textContent = newChar;
+                resultBoxes[i].classList.add(isEncrypt ? 'encrypted' : 'decrypted');
+                result += newChar;
+                
+                textBoxes[i].classList.remove('processing');
+                keyBoxes[i].classList.remove('processing');
+            }
+            
+            return result;
+        }
+
+        // Rail Fence Cipher Animation
+        async function animateRailFence(text, rails, isEncrypt) {
+            if (rails < 2 || rails > 10) throw new Error("Rails must be between 2 and 10");
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Rail Fence Cipher:</strong> Writing text in zigzag pattern across ${rails} rails.
+                </div>
+                <div class="key-display">Number of Rails: ${rails}</div>
+            `;
+            
+            if (isEncrypt) {
+                return await animateRailFenceEncrypt(text, rails, container);
+            } else {
+                return await animateRailFenceDecrypt(text, rails, container);
+            }
+        }
+
+        async function animateRailFenceEncrypt(text, rails, container) {
+            // Create rail grid
+            const railGrid = document.createElement('div');
+            railGrid.style.margin = '20px 0';
+            
+            const railRows = [];
+            for (let i = 0; i < rails; i++) {
+                const row = document.createElement('div');
+                row.className = 'character-row';
+                row.style.marginBottom = '10px';
+                railRows.push(row);
+                railGrid.appendChild(row);
+            }
+            
+            container.appendChild(railGrid);
+            
+            // Initialize rail arrays
+            const railArrays = Array(rails).fill().map(() => []);
+            const positions = [];
+            
+            // Calculate zigzag pattern
+            let rail = 0;
+            let direction = 1;
+            
+            for (let i = 0; i < text.length; i++) {
+                positions.push(rail);
+                rail += direction;
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            // Create boxes for each rail
+            const maxLength = Math.max(...positions.map((_, i) => positions.slice(0, i + 1).filter(r => r === positions[i]).length));
+            
+            for (let r = 0; r < rails; r++) {
+                for (let c = 0; c < maxLength; c++) {
+                    const box = document.createElement('div');
+                    box.className = 'char-box';
+                    box.textContent = '·';
+                    box.style.opacity = '0.3';
+                    railRows[r].appendChild(box);
+                }
+            }
+            
+            // Animate placing characters
+            const railCounters = Array(rails).fill(0);
+            
+            for (let i = 0; i < text.length; i++) {
+                await sleep(animationSpeed);
+                
+                const rail = positions[i];
+                const char = text[i];
+                const boxIndex = railCounters[rail];
+                
+                const box = railRows[rail].children[boxIndex];
+                box.textContent = char;
+                box.style.opacity = '1';
+                box.classList.add('processing');
+                
+                railArrays[rail].push(char);
+                railCounters[rail]++;
+                
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                box.classList.remove('processing');
+                box.classList.add('encrypted');
+            }
+            
+            // Show final result
+            await sleep(animationSpeed);
+            const result = railArrays.join('');
+            
+            const resultInfo = document.createElement('div');
+            resultInfo.className = 'process-info';
+            resultInfo.innerHTML = `<strong>Reading rails left to right:</strong> ${railArrays.map((rail, i) => `Rail ${i + 1}: ${rail.join('')}`).join(', ')}`;
+            container.appendChild(resultInfo);
+            
+            return result;
+        }
+
+        async function animateRailFenceDecrypt(text, rails, container) {
+            // Calculate rail lengths
+            const railLengths = Array(rails).fill(0);
+            let rail = 0;
+            let direction = 1;
+            
+            for (let i = 0; i < text.length; i++) {
+                railLengths[rail]++;
+                rail += direction;
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            // Create rail display
+            const railGrid = document.createElement('div');
+            railGrid.style.margin = '20px 0';
+            
+            const railRows = [];
+            for (let i = 0; i < rails; i++) {
+                const row = document.createElement('div');
+                row.className = 'character-row';
+                row.style.marginBottom = '10px';
+                railRows.push(row);
+                railGrid.appendChild(row);
+            }
+            
+            container.appendChild(railGrid);
+            
+            // Fill rails with encrypted text
+            let textIndex = 0;
+            for (let r = 0; r < rails; r++) {
+                for (let c = 0; c < railLengths[r]; c++) {
+                    const box = document.createElement('div');
+                    box.className = 'char-box encrypted';
+                    box.textContent = text[textIndex++];
+                    railRows[r].appendChild(box);
+                }
+            }
+            
+            await sleep(animationSpeed);
+            
+            // Reconstruct zigzag pattern
+            const result = [];
+            const railIndices = Array(rails).fill(0);
+            rail = 0;
+            direction = 1;
+            
+            for (let i = 0; i < text.length; i++) {
+                await sleep(animationSpeed / 2);
+                
+                const box = railRows[rail].children[railIndices[rail]];
+                box.classList.add('processing');
+                
+                const char = box.textContent;
+                result.push(char);
+                railIndices[rail]++;
+                
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                box.classList.remove('processing');
+                box.classList.add('decrypted');
+                
+                rail += direction;
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            return result.join('');
+        }
+
+        // XOR Cipher Animation
+        async function animateXOR(text, key) {
+            if (!key) throw new Error("XOR cipher requires a key");
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>XOR Cipher:</strong> Each character is XORed with the repeating key using bitwise exclusive OR.
+                </div>
+                <div class="key-display">Key: "${key}" (repeating)</div>
+            `;
+            
+            return await animateCharacterSubstitution(text, (char, index) => {
+                const keyChar = key[index % key.length];
+                return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
+            }, container, key);
+        }
+
+        // Base64 Animation
+        async function animateBase64(text, isEncrypt) {
+            const container = document.getElementById('animationContainer');
+            const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Base64 ${isEncrypt ? 'Encoding' : 'Decoding'}:</strong> ${isEncrypt ? 'Converting text to Base64 representation' : 'Converting Base64 back to text'}.
+                </div>
+                <div class="key-display">Character Set: ${base64Chars}</div>
+            `;
+            
+            if (isEncrypt) {
+                // Simple Base64 encoding animation
+                const bytes = [];
+                for (let i = 0; i < text.length; i++) {
+                    bytes.push(text.charCodeAt(i));
+                }
+                
+                let result = '';
+                const inputRow = createCharacterRow(text.split(''), container);
+                
+                await sleep(animationSpeed);
+                
+                // For simplicity, use browser's btoa function but animate it
+                for (let i = 0; i < inputRow.length; i++) {
+                    await sleep(animationSpeed / 2);
+                    inputRow[i].classList.add('processing');
+                    currentStep++;
+                    document.getElementById('stepCount').textContent = currentStep;
+                    await sleep(animationSpeed / 2);
+                    inputRow[i].classList.remove('processing');
+                    inputRow[i].classList.add('encrypted');
+                }
+                
+                result = btoa(text);
+                return result;
+            } else {
+                try {
+                    const result = atob(text);
+                    const inputRow = createCharacterRow(text.split(''), container);
+                    
+                    for (let i = 0; i < inputRow.length; i++) {
+                        await sleep(animationSpeed / 4);
+                        inputRow[i].classList.add('processing');
+                        currentStep++;
+                        document.getElementById('stepCount').textContent = currentStep;
+                        await sleep(animationSpeed / 4);
+                        inputRow[i].classList.remove('processing');
+                        inputRow[i].classList.add('decrypted');
+                    }
+                    
+                    return result;
+                } catch (e) {
+                    throw new Error("Invalid Base64 input");
+                }
+            }
+        }
+
+        // Morse Code Animation
+        async function animateMorse(text, isEncrypt) {
+            const morseCode = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+                'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+                'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+                'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+                'Y': '-.--', 'Z': '--..', ' ': '/', '0': '-----', '1': '.----',
+                '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....',
+                '7': '--...', '8': '---..', '9': '----.', '.': '.-.-.-', ',': '--..--'
+            };
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Morse Code:</strong> ${isEncrypt ? 'Converting letters to dots and dashes' : 'Converting dots and dashes to letters'}.
+                </div>
+                <div class="key-display">· = Dot (short signal) | - = Dash (long signal) | / = Space</div>
+            `;
+            
+            if (isEncrypt) {
+                return await animateCharacterSubstitution(text.toUpperCase(), (char) => {
+                    return morseCode[char] || char;
+                }, container, ' ');
+            } else {
+                // Decrypt morse code
+                const words = text.split('/');
+                let result = '';
+                
+                for (let word of words) {
+                    const letters = word.trim().split(' ');
+                    for (let letter of letters) {
+                        const char = Object.keys(morseCode).find(key => morseCode[key] === letter);
+                        result += char || '?';
+                    }
+                    result += ' ';
+                }
+                
+                await animateCharacterSubstitution(text, () => '', container);
+                return result.trim();
+            }
+        }
+
+        // Columnar Transposition Animation
+        async function animateColumnar(text, key, isEncrypt) {
+            if (!key) throw new Error("Columnar transposition requires a keyword");
+            
+            const container = document.getElementById('animationContainer');
+            const upperKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Columnar Transposition:</strong> Arranging text in columns based on keyword order.
+                </div>
+                <div class="key-display">Keyword: ${upperKey}</div>
+            `;
+            
+            if (isEncrypt) {
+                // Create grid
+                const cols = upperKey.length;
+                const rows = Math.ceil(text.length / cols);
+                
+                // Show column headers with order
+                const keyOrder = [...upperKey].map((char, i) => ({ char, original: i }))
+                    .sort((a, b) => a.char.localeCompare(b.char))
+                    .map((item, i) => ({ ...item, order: i }));
+                
+                const headerRow = document.createElement('div');
+                headerRow.className = 'character-row';
+                headerRow.style.marginBottom = '10px';
+                
+                keyOrder.forEach(item => {
+                    const header = document.createElement('div');
+                    header.className = 'char-box';
+                    header.textContent = `${item.char}(${item.order + 1})`;
+                    header.style.background = '#444';
+                    headerRow.appendChild(header);
+                });
+                
+                container.appendChild(headerRow);
+                
+                // Create grid and fill with text
+                const grid = [];
+                for (let r = 0; r < rows; r++) {
+                    const row = document.createElement('div');
+                    row.className = 'character-row';
+                    const rowData = [];
+                    
+                    for (let c = 0; c < cols; c++) {
+                        const index = r * cols + c;
+                        const char = index < text.length ? text[index] : '';
+                        
+                        const box = document.createElement('div');
+                        box.className = 'char-box';
+                        box.textContent = char || '·';
+                        if (!char) box.style.opacity = '0.3';
+                        
+                        row.appendChild(box);
+                        rowData.push({ box, char });
+                    }
+                    
+                    grid.push(rowData);
+                    container.appendChild(row);
+                }
+                
+                await sleep(animationSpeed * 2);
+                
+                // Read columns in key order
+                let result = '';
+                const sortedKeyOrder = [...keyOrder].sort((a, b) => a.order - b.order);
+                
+                for (let keyItem of sortedKeyOrder) {
+                    const col = keyItem.original;
+                    
+                    for (let r = 0; r < rows; r++) {
+                        if (grid[r][col].char) {
+                            await sleep(animationSpeed / 2);
+                            grid[r][col].box.classList.add('processing');
+                            currentStep++;
+                            document.getElementById('stepCount').textContent = currentStep;
+                            
+                            await sleep(animationSpeed / 2);
+                            grid[r][col].box.classList.remove('processing');
+                            grid[r][col].box.classList.add('encrypted');
+                            result += grid[r][col].char;
+                        }
+                    }
+                }
+                
+                return result;
+            } else {
+                // Decryption logic would be more complex - simplified here
+                return text.split('').reverse().join(''); // Placeholder
+            }
+        }
+
+        // Playfair Cipher Animation
+        async function animatePlayfair(text, key, isEncrypt) {
+            if (!key) throw new Error("Playfair cipher requires a keyword");
+            
+            const container = document.getElementById('animationContainer');
+            const cleanKey = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+            
+            // Create 5x5 key square
+            const alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'; // J omitted
+            const keySquare = [];
+            const used = new Set();
+            
+            // Add key letters first
+            for (let char of cleanKey) {
+                if (!used.has(char)) {
+                    keySquare.push(char);
+                    used.add(char);
+                }
+            }
+            
+            // Add remaining letters
+            for (let char of alphabet) {
+                if (!used.has(char)) {
+                    keySquare.push(char);
+                }
+            }
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Playfair Cipher:</strong> Using 5×5 key square to encrypt letter pairs (digrams).
+                </div>
+                <div class="key-display">Keyword: ${cleanKey}</div>
+            `;
+            
+            // Display key square
+            const matrix = document.createElement('div');
+            matrix.className = 'matrix-display';
+            matrix.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            matrix.style.maxWidth = '200px';
+            matrix.style.margin = '20px auto';
+            
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'matrix-cell';
+                cell.textContent = keySquare[i];
+                matrix.appendChild(cell);
+            }
+            
+            container.appendChild(matrix);
+            
+            // Simplified Playfair animation (actual algorithm is complex)
+            const cleanText = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+            return await animateCharacterSubstitution(cleanText, (char) => {
+                const index = keySquare.indexOf(char);
+                if (index === -1) return char;
+                // Simplified transformation
+                return keySquare[(index + (isEncrypt ? 1 : -1) + 25) % 25];
+            }, container);
+        }
+
+        // Generic character substitution animation
+        async function animateCharacterSubstitution(text, transformFunc, container, separator = '') {
+            const inputRow = document.createElement('div');
+            inputRow.className = 'character-row';
+            
+            const outputRow = document.createElement('div');
+            outputRow.className = 'character-row';
+            
+            const chars = text.split('');
+            const inputBoxes = [];
+            const outputBoxes = [];
+            
+            chars.forEach((char, i) => {
+                const inputBox = document.createElement('div');
+                inputBox.className = 'char-box';
+                inputBox.textContent = char;
+                inputBoxes.push(inputBox);
+                inputRow.appendChild(inputBox);
+                
+                const outputBox = document.createElement('div');
+                outputBox.className = 'char-box';
+                outputBox.textContent = '?';
+                outputBoxes.push(outputBox);
+                outputRow.appendChild(outputBox);
+            });
+            
+            container.appendChild(inputRow);
+            
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.textContent = '↓';
+            container.appendChild(arrow);
+            
+            container.appendChild(outputRow);
+            
+            let result = '';
+            
+            for (let i = 0; i < chars.length; i++) {
+                await sleep(animationSpeed);
+                
+                inputBoxes[i].classList.add('processing');
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                
+                const newChar = transformFunc(chars[i], i);
+                outputBoxes[i].textContent = newChar;
+                outputBoxes[i].classList.add('encrypted');
+                result += newChar + separator;
+                
+                inputBoxes[i].classList.remove('processing');
+            }
+            
+            return result;
+        }
+
+        // Simple Substitution Animation
+        async function animateSubstitution(text, key, isEncrypt) {
+            if (!key || key.length !== 26) {
+                throw new Error("Substitution cipher requires a 26-letter key");
+            }
+            
+            const container = document.getElementById('animationContainer');
+            const upperKey = key.toUpperCase();
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Simple Substitution:</strong> Each letter maps to a different letter according to the key.
+                </div>
+                <div class="key-display">
+                    Alphabet: ${alphabet}<br>
+                    Key:      ${upperKey}
+                </div>
+            `;
+            
+            return await animateCharacterSubstitution(text.toUpperCase(), (char) => {
+                if (char.match(/[A-Z]/)) {
+                    if (isEncrypt) {
+                        const index = char.charCodeAt(0) - 65;
+                        return upperKey[index];
+                    } else {
+                        const index = upperKey.indexOf(char);
+                        return index !== -1 ? String.fromCharCode(index + 65) : char;
+                    }
+                }
+                return char;
+            }, container);
+        }
+
+        // Affine Cipher Animation
+        async function animateAffine(text, key, isEncrypt) {
+            const parts = key.split(',').map(x => parseInt(x.trim()));
+            if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+                throw new Error("Affine cipher requires two numbers separated by comma (e.g., 5,8)");
+            }
+            
+            const [a, b] = parts;
+            if (gcd(a, 26) !== 1) {
+                throw new Error("First number must be coprime to 26");
+            }
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Affine Cipher:</strong> Using formula ${isEncrypt ? `(${a}x + ${b}) mod 26` : `${modInverse(a, 26)}(x - ${b}) mod 26`}
+                </div>
+                <div class="key-display">a = ${a}, b = ${b}</div>
+            `;
+            
+            return await animateCharacterSubstitution(text.toUpperCase(), (char) => {
+                if (char.match(/[A-Z]/)) {
+                    const x = char.charCodeAt(0) - 65;
+                    let result;
+                    
+                    if (isEncrypt) {
+                        result = (a * x + b) % 26;
+                    } else {
+                        const aInv = modInverse(a, 26);
+                        result = (aInv * (x - b + 26)) % 26;
+                    }
+                    
+                    return String.fromCharCode(result + 65);
+                }
+                return char;
+            }, container);
+        }
+
+        // Beaufort Cipher Animation
+        async function animateBeaufort(text, key, isEncrypt) {
+            if (!key) throw new Error("Beaufort cipher requires a keyword");
+            
+            const container = document.getElementById('animationContainer');
+            const upperKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+            
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Beaufort Cipher:</strong> Using keyword "${upperKey}" with subtraction instead of addition.
+                </div>
+                <div class="key-display">Keyword: ${upperKey} (repeating)</div>
+            `;
+            
+            // Create rows for visualization
+            const textRow = document.createElement('div');
+            textRow.className = 'character-row';
+            
+            const keyRow = document.createElement('div');
+            keyRow.className = 'character-row';
+            
+            const resultRow = document.createElement('div');
+            resultRow.className = 'character-row';
+            
+            const chars = text.toUpperCase().split('');
+            const textBoxes = [];
+            const keyBoxes = [];
+            const resultBoxes = [];
+            
+            let keyIndex = 0;
+            
+            chars.forEach((char, i) => {
+                // Text box
+                const textBox = document.createElement('div');
+                textBox.className = 'char-box';
+                textBox.textContent = char;
+                textBoxes.push(textBox);
+                textRow.appendChild(textBox);
+                
+                // Key box
+                const keyBox = document.createElement('div');
+                keyBox.className = 'char-box';
+                if (char.match(/[A-Z]/)) {
+                    keyBox.textContent = upperKey[keyIndex % upperKey.length];
+                    keyIndex++;
+                } else {
+                    keyBox.textContent = '-';
+                }
+                keyBoxes.push(keyBox);
+                keyRow.appendChild(keyBox);
+                
+                // Result box
+                const resultBox = document.createElement('div');
+                resultBox.className = 'char-box';
+                resultBox.textContent = '?';
+                resultBoxes.push(resultBox);
+                resultRow.appendChild(resultBox);
+            });
+            
+            container.appendChild(textRow);
+            container.appendChild(keyRow);
+            
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.textContent = '↓';
+            container.appendChild(arrow);
+            
+            container.appendChild(resultRow);
+            
+            let result = '';
+            keyIndex = 0;
+            
+            for (let i = 0; i < chars.length; i++) {
+                await sleep(animationSpeed);
+                
+                textBoxes[i].classList.add('processing');
+                keyBoxes[i].classList.add('processing');
+                currentStep++;
+                document.getElementById('stepCount').textContent = currentStep;
+                
+                await sleep(animationSpeed / 2);
+                
+                const char = chars[i];
+                let newChar = char;
+                
+                if (char.match(/[A-Z]/)) {
+                    const keyChar = upperKey[keyIndex % upperKey.length];
+                    const charCode = char.charCodeAt(0) - 65;
+                    const keyCode = keyChar.charCodeAt(0) - 65;
+                    
+                    // Beaufort: (key - text) mod 26 for both encrypt and decrypt
+                    const newCharCode = (keyCode - charCode + 26) % 26;
+                    newChar = String.fromCharCode(newCharCode + 65);
+                    keyIndex++;
+                }
+                
+                resultBoxes[i].textContent = newChar;
+                resultBoxes[i].classList.add(isEncrypt ? 'encrypted' : 'decrypted');
+                result += newChar;
+                
+                textBoxes[i].classList.remove('processing');
+                keyBoxes[i].classList.remove('processing');
+            }
+            
+            return result;
+        }
+
+        // Scytale Cipher Animation
+        async function animateScytale(text, diameter, isEncrypt) {
+            if (diameter < 2 || diameter > 10) throw new Error("Diameter must be between 2 and 10");
+            
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = `
+                <div class="process-info">
+                    <strong>Scytale Cipher:</strong> Wrapping text around a rod with diameter ${diameter} and reading ${isEncrypt ? 'vertically' : 'horizontally'}.
+                </div>
+                <div class="key-display">Rod Diameter: ${diameter}</div>
+            `;
+            
+            // Create grid representation
+            const rows = Math.ceil(text.length / diameter);
+            const grid = [];
+            
+            for (let r = 0; r < rows; r++) {
+                const row = document.createElement('div');
+                row.className = 'character-row';
+                const rowData = [];
+                
+                for (let c = 0; c < diameter; c++) {
+                    const index = isEncrypt ? (r * diameter + c) : (c * rows + r);
+                    const char = index < text.length ? text[index] : '';
+                    
+                    const box = document.createElement('div');
+                    box.className = 'char-box';
+                    box.textContent = char || '·';
+                    if (!char) box.style.opacity = '0.3';
+                    
+                    row.appendChild(box);
+                    rowData.push({ box, char, index });
+                }
+                
+                grid.push(rowData);
+                container.appendChild(row);
+            }
+            
+            await sleep(animationSpeed * 2);
+            
+            let result = '';
+            
+            if (isEncrypt) {
+                // Read columns (vertically)
+                for (let c = 0; c < diameter; c++) {
+                    for (let r = 0; r < rows; r++) {
+                        if (grid[r][c].char) {
+                            await sleep(animationSpeed / 2);
+                            grid[r][c].box.classList.add('processing');
+                            currentStep++;
+                            document.getElementById('stepCount').textContent = currentStep;
+                            
+                            await sleep(animationSpeed / 2);
+                            grid[r][c].box.classList.remove('processing');
+                            grid[r][c].box.classList.add('encrypted');
+                            result += grid[r][c].char;
+                        }
+                    }
+                }
+            } else {
+                // Read rows (horizontally)
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < diameter; c++) {
+                        if (grid[r][c].char) {
+                            await sleep(animationSpeed / 2);
+                            grid[r][c].box.classList.add('processing');
+                            currentStep++;
+                            document.getElementById('stepCount').textContent = currentStep;
+                            
+                            await sleep(animationSpeed / 2);
+                            grid[r][c].box.classList.remove('processing');
+                            grid[r][c].box.classList.add('decrypted');
+                            result += grid[r][c].char;
+                        }
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        // Helper function to create character row
+        function createCharacterRow(chars, container) {
+            const row = document.createElement('div');
+            row.className = 'character-row';
+            
+            const boxes = chars.map(char => {
+                const box = document.createElement('div');
+                box.className = 'char-box';
+                box.textContent = char;
+                row.appendChild(box);
+                return box;
+            });
+            
+            container.appendChild(row);
+            return boxes;
+        }
+
+        // Utility functions
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function gcd(a, b) {
+            while (b !== 0) {
+                const temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        function modInverse(a, m) {
+            for (let i = 1; i < m; i++) {
+                if ((a * i) % m === 1) {
+                    return i;
+                }
+            }
+            return 1;
+        }
+
+        // Copy result to clipboard
+        function copyResult() {
+            const result = document.getElementById('resultText').textContent;
+            if (result && result !== 'Result will appear here...' && result !== 'Processing...') {
+                navigator.clipboard.writeText(result).then(() => {
+                    showNotification('Result copied to clipboard!');
+                });
+            }
+        }
+
+        // Reverse operation
+        function reverseOperation() {
+            if (!lastResult || !lastOperation) return;
+            
+            document.getElementById('plainText').value = lastResult;
+            
+            if (lastOperation === 'encrypt') {
+                startDecryption();
+            } else {
+                startEncryption();
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #00ff41;
+                color: #000;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Event listeners
+        document.getElementById('cipherSelect').addEventListener('change', updateCipherInfo);
+        
+        document.getElementById('plainText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isAnimating) {
+                startEncryption();
+            }
+        });
+        
+        document.getElementById('cipherKey').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isAnimating) {
+                startEncryption();
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCipherInfo();
+            
+            // Add some CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                
+                .matrix-cell.highlight {
+                    animation: highlight 0.8s ease;
+                }
+                
+                @keyframes highlight {
+                    0%, 100% { background: #333; }
+                    50% { background: #00ff41; color: #000; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
